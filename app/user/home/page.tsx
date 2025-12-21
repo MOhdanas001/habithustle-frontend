@@ -1,18 +1,48 @@
-'use client';
-import React, { useState } from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, Users, TrendingUp, Plus, Search, Flame, Target, Clock, Crown } from 'lucide-react';
 
 export default function HabitBetHome() {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState('active');
   const [searchQuery, setSearchQuery] = useState('');
+  const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const router = useRouter();
 
-  // Simple client-side auth check based on presence of token
-  const isBrowser = typeof window !== 'undefined';
-  if (isBrowser && !localStorage.getItem('token')) {
-    router.replace('/');
-    return null;
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchMe() {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!res.ok) {
+          router.replace('/');
+          return;
+        }
+        const data = await res.json();
+        if (mounted) setUser(data?.user || data || null);
+      } catch (err) {
+        console.error('Failed to fetch /api/me', err);
+        router.replace('/');
+      } finally {
+        if (mounted) setLoadingUser(false);
+      }
+    }
+    fetchMe();
+    return () => {
+      mounted = false;
+    };
+  }, [router]);
+
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
+    try { localStorage.removeItem('token'); } catch {}
+    router.push('/');
   }
 
   const activeBets = [
@@ -49,6 +79,9 @@ export default function HabitBetHome() {
               <Plus className="w-5 h-5" />
               <span>Create Bet</span>
             </button>
+            <button onClick={handleLogout} className="bg-white text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-all transform hover:scale-105 flex items-center space-x-2">
+              <span>{loadingUser ? '...' : user ? `Logout (${user.username || user.name || user.email})` : 'Logout'}</span>
+            </button>
           </div>
         </div>
       </header>
@@ -58,6 +91,11 @@ export default function HabitBetHome() {
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Welcome back, Champion! 🏆</h2>
           <p className="text-gray-400">Keep pushing your limits and winning bets</p>
+          {user && (
+            <div className="mt-3 text-sm text-gray-300">
+              Signed in as <strong>{user.name || user.username || user.email}</strong> ({user.role})
+            </div>
+          )}
         </div>
 
         {/* Stats Grid */}

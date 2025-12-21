@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Trophy, Users, TrendingUp,  Flame, Target, ArrowRight, Zap} from 'lucide-react';
 
-import { SignupModal } from './common/SignupModal';
+import { SignupModal } from './user/home/common/SignupModal';
 
 export default function HabitBetLanding() {
   const [showLoginModal, setShowLoginModal] = useState(false);

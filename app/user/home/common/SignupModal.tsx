@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { X, Mail, Lock, Trophy } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { login, register as registerUser } from "../api/auth";
+// import { useRouter } from "next/router";
+// import { useForm } from "react-hook-form";
+// import { login, register  } from "../api/auth";
 import { useRouter } from "next/navigation";
 
 interface FormData {
   email: string;
   password: string;
   name?: string;
+  username?: string;
 }
 
 interface Props {
@@ -17,46 +20,73 @@ interface Props {
 }
 
 export const SignupModal = ({ setShowLoginModal }: Props) => {
+
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+ 
+  const {
+  register,
+  handleSubmit,
+  reset,
+  formState: { errors },
+} = useForm<FormData>();
   const router = useRouter();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<FormData>({
-    mode: "onBlur",
-    defaultValues: {
-      email: "",
-      password: "",
-      name: "",
-    },
-  });
+const onSubmit = async (data: FormData) => {
+  setApiError(null);
+  setIsLoading(true);
 
-  const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
-    setApiError(null);
-    try {
-        const response = await login({ identifier: data.email, password: data.password });
-        localStorage.setItem("token", response.data.token);
-        router.push("/home");
-        setShowLoginModal(false);
-        reset();
+  try {
+    const endpoint = isLogin
+      ? "/api/auth/login"
+      : "/api/auth/register";
 
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An error occurred";
-      setApiError(errorMessage);
-      console.error(`${isLogin ? "Login" : "Registration"} failed:`, error);
-    } finally {
-      setIsLoading(false);
+    const payload = isLogin
+      ? {
+          identifier: data.email,
+          password: data.password,
+        }
+      : {
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          password: data.password,
+        };
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.message || "Something went wrong");
     }
-  };
 
- 
- 
+    // On success, navigate client-side. Accept either 'Admin' or 'admin'.
+    if (result.user && (result.user.role === "Admin" || result.user.role === "admin")) {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/user/home');
+    }
+
+    // ✅ SUCCESS
+    setShowLoginModal(false);
+    reset();
+    
+
+
+  } catch (err: any) {
+    setApiError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-black border border-white/20 rounded-2xl max-w-md w-full p-8 relative animate-in">
@@ -95,12 +125,13 @@ export const SignupModal = ({ setShowLoginModal }: Props) => {
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           {/* Name - Only for Registration */}
           {!isLogin && (
+            <>
             <div>
               <label className="block text-sm font-medium mb-2">Name</label>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Your name"
+                  placeholder="Username"
                   className={`w-full bg-white/5 border rounded-lg pl-4 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
                     errors.name
                       ? "border-red-500 focus:border-red-500"
@@ -115,6 +146,27 @@ export const SignupModal = ({ setShowLoginModal }: Props) => {
               </div>
               {errors.name && <span className="text-red-400 text-xs mt-1 block">{errors.name.message}</span>}
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Uername</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  className={`w-full bg-white/5 border rounded-lg pl-4 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none ${
+                    errors.name
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-white/10 focus:border-white/30"
+                  }`}
+                  {...register("username", {
+                    required: !isLogin ? "username is required" : false,
+                    minLength:
+                      !isLogin ? { value: 2, message: "Name must be at least 2 characters" } : undefined,
+                  })}
+                />
+              </div>
+              {errors.name && <span className="text-red-400 text-xs mt-1 block">{errors.username.message}</span>}
+            </div>
+            </>
           )}
 
           {/* Email */}
