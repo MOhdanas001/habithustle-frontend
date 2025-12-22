@@ -15,30 +15,6 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-    // useEffect(() => {
-    //     let mounted = true;
-    //     async function fetchMe() {
-    //         try {
-    //             const res = await fetch("/api/auth/me", { credentials: "include" });
-    //             if (!res.ok) {
-    //                 // not authenticated
-    //                 router.replace("/");
-    //                 return;
-    //             }
-    //             const data = await res.json();
-    //             if (mounted) setUser(data?.user || data || null);
-    //         } catch (err) {
-    //             console.error("Failed to fetch user:", err);
-    //         } finally {
-    //             if (mounted) setLoading(false);
-    //         }
-    //     }
-    //     fetchMe();
-    //     return () => {
-    //         mounted = false;
-    //     };
-    // }, [router]);
-
     async function handleLogout() {
         try {
             await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
