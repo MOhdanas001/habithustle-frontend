@@ -5,7 +5,6 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   const cookieStore = await cookies();
   const token = cookieStore.get('auth_token')?.value;
   const apiUrl = process.env.NEXT_API_URL;
-  console.log("API URL in UserLayout:", apiUrl);
 
   try {
     const backendRes = await fetch(`${apiUrl}/auth/me`, {

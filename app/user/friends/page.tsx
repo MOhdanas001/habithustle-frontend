@@ -56,25 +56,29 @@ export default function FriendsPage() {
   }, [query]);
 
   /* ---------------- SEND FRIEND REQUEST ---------------- */
-  const sendRequest = async (userId: string) => {
-    try {
-      const res = await fetch("/api/friends/send", {
+const sendRequest = async (userId: string) => {
+  if (sentIds.includes(userId)) return;
+
+  try {
+    const res = await fetch(
+      `/api/friends/send-request?toUserId=${encodeURIComponent(userId)}`,
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toUserId: userId }),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || "Request failed");
       }
+    );
 
-      setSentIds((prev) => [...prev, userId]);
-    } catch (err) {
-      alert("Failed to send request");
+    const json = await res.json();
+
+    if (!res.ok || !json.success) {
+      throw new Error(json.message || "Request failed");
     }
-  };
+
+    setSentIds((prev) => [...prev, userId]);
+  } catch (err) {
+    alert("Failed to send request");
+  }
+};
+
 
   /* ---------------- UI ---------------- */
   return (

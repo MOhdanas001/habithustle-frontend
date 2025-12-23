@@ -1,18 +1,19 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   try {
-    const apiUrl = process.env.NEXT_API_URL || "http://localhost:8081/api";
-
+    const apiUrl = process.env.NEXT_API_URL;
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("q");
+    const toUserId = searchParams.get("toUserId");
 
-    if (!query || !query.trim()) {
-      return NextResponse.json({ success: true, data: [] });
+    if (!toUserId) {
+      return NextResponse.json(
+        { success: false, message: "toUserId is required" },
+        { status: 400 }
+      );
     }
-    const cookiesStore = await cookies();
-    const token = cookiesStore.get("auth_token")?.value;
+    const token = (await cookies()).get("auth_token")?.value;
     if (!token) {
       return NextResponse.json(
         { success: false, message: "Not authenticated" },
@@ -21,29 +22,34 @@ export async function GET(request: Request) {
     }
 
     const backendRes = await fetch(
-      `${apiUrl}/search/users?q=${encodeURIComponent(query)}`,
+      `${apiUrl}/friends/send?toUserId=${encodeURIComponent(toUserId)}`,
       {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         cache: "no-store",
       }
     );
+
     const backendJson = await backendRes.json();
 
     if (!backendRes.ok) {
       return NextResponse.json(
-        { success: false, message: backendJson?.message || "Unauthorized" },
+        {
+          success: false,
+          message: backendJson?.message || "Request failed",
+        },
         { status: backendRes.status }
       );
     }
 
     return NextResponse.json({
       success: true,
-      data: backendJson.data ?? [],
+      message: backendJson.message || "Friend request sent",
     });
   } catch (err) {
-    console.error(err);
+    console.error("Send request error:", err);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

@@ -30,7 +30,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/me', {
+      const response = await fetch('/api/auth/me', {
         method: 'GET',
         credentials: 'include',
         cache: 'no-store',
