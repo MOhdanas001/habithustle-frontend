@@ -5,16 +5,18 @@ import { ref, onValue, remove, off } from 'firebase/database';
 import { database } from '@/app/config/firebase';
 
 export interface Notification {
-  id: string;
-  type: 'bet_invite' | 'bet_won' | 'bet_completed' | 'streak_milestone' | 'friend_joined' | 'FRIEND_REQUEST';
+  id: string; // senderId (node key)
+  type: 'FRIEND_REQUEST';
   title: string;
   message: string;
   time: string;
   unread: boolean;
-  senderId?: string;
-  senderName?: string;
-  status?: string;
-  timestamp?: number;
+  senderId: string;
+  senderName: string;
+  status: string;
+  timestamp: number;
+  profilepic?: string;
+  username?: string;
 }
 
 interface UseFirebaseNotificationsReturn {
@@ -23,168 +25,120 @@ interface UseFirebaseNotificationsReturn {
   isConnected: boolean;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
-  acceptFriendRequest: (notificationId: string) => void;
-  declineFriendRequest: (notificationId: string) => void;
+  respondToRequest: (senderId: string, accept: boolean) => void;
 }
 
 function formatTimestamp(timestamp: number): string {
-  const now = Date.now();
-  const diff = now - timestamp;
-  
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
+  const diff = Date.now() - timestamp;
+  const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
-  
-  if (seconds < 60) return 'Just now';
+
+  if (minutes < 1) return 'Just now';
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
   return `${days}d ago`;
 }
 
-function convertFirebaseNotification(key: string, data: any): Notification {
-  const type = data.type;
-  
-  let title = 'New Notification';
-  let message = data.message || 'You have a new notification';
-  
-  if (type === 'friend_request') {
-    title = 'New Friend Request';
-    message = `${data.senderName || 'Someone'} wants to be your friend`;
-  } else if (type === 'bet_invite') {
-    title = 'New Bet Invitation';
-    message = data.message || `${data.senderName} invited you to join a bet`;
-  }
-  
-  return {
-    id: key,
-    type: type as Notification['type'],
-    title,
-    message,
-    time: formatTimestamp(data.timestamp || Date.now()),
-    unread: true,
-    senderId: data.senderId,
-    senderName: data.senderName,
-    status: data.status,
-    timestamp: data.timestamp
-  };
-}
-
-export function useFirebaseNotifications(userId?: string): UseFirebaseNotificationsReturn {
+export function useFirebaseNotifications(
+  userId?: string
+): UseFirebaseNotificationsReturn {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isConnected, setIsConnected] = useState(false);
 
-
+  // =======================
+  // Firebase Listener
+  // =======================
   useEffect(() => {
+    if (!userId) return;
 
-    if (!userId) {
-      console.log('No user ID provided for Firebase notifications');
-      return;
-    }
-
-    console.log('Setting up Firebase listener for user:', userId);
     const notificationsRef = ref(database, `notifications/${userId}`);
 
-    // Listen for real-time updates
     const unsubscribe = onValue(
       notificationsRef,
       (snapshot) => {
         setIsConnected(true);
         const data = snapshot.val();
-        
-        if (data) {
-          console.log('Firebase notifications data:', data);
-          const notificationsList: Notification[] = [];
-          
-          Object.keys(data).forEach((key) => {
-            const notification = convertFirebaseNotification(key, data[key]);
-            notificationsList.push(notification);
-          });
-          
-          // Sort by timestamp (newest first)
-          notificationsList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-          
-          setNotifications(notificationsList);
-        } else {
+
+        if (!data) {
           setNotifications([]);
+          return;
         }
+
+        const list: Notification[] = [];
+
+        // ONE sender node = ONE notification
+        Object.entries(data).forEach(([senderId, n]: any) => {
+          list.push({
+            id: senderId,
+            type: n.type,
+            title: 'New Friend Request',
+            message: `${n.senderName} sent you a friend request`,
+            time: formatTimestamp(n.timestamp),
+            unread: true,
+            senderId: n.senderId,
+            senderName: n.senderName,
+            status: n.status,
+            timestamp: n.timestamp,
+            profilepic: n.profilepic,
+            username: n.username
+          });
+        });
+
+        list.sort((a, b) => b.timestamp - a.timestamp);
+        setNotifications(list);
       },
       (error) => {
-        console.error('Firebase error:', error);
+        console.error('Firebase listener error:', error);
         setIsConnected(false);
       }
     );
 
-    // Cleanup listener on unmount
     return () => {
       off(notificationsRef);
       unsubscribe();
     };
   }, [userId]);
 
+  // =======================
+  // Local Read State
+  // =======================
   const markAsRead = useCallback((id: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === id ? { ...notif, unread: false } : notif
-      )
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
     );
   }, []);
 
   const markAllAsRead = useCallback(() => {
-    setNotifications(prev =>
-      prev.map(notif => ({ ...notif, unread: false }))
-    );
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
   }, []);
 
-  const acceptFriendRequest = useCallback(async (notificationId: string) => {
-    const notification = notifications.find(n => n.id === notificationId);
-    if (!notification?.senderId || !userId) return;
+  // =======================
+  // Accept Friend Request
+  // =======================
+  const respondToRequest = useCallback(
+    async (senderId: string, accept: boolean) => {
+      if (!userId) return;
 
-    try {
-      // Call your backend API to accept the friend request
-      const response = await fetch('/api/friends/accept', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ friendId: notification.senderId })
-      });
+      try {
+        const res = await fetch('/api/friends/respond', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ senderId: senderId, accept: accept })
+        });
 
-      if (response.ok) {
-        // Remove notification from Firebase
-        const notificationRef = ref(database, `notifications/${userId}/${notificationId}`);
-        await remove(notificationRef);
-        console.log('Friend request accepted and notification removed');
+        if (!res.ok) throw new Error('Accept failed');
+
+        await remove(ref(database, `notifications/${userId}/${senderId}`));
+      } catch (err) {
+        console.error('Accept friend request failed:', err);
       }
-    } catch (error) {
-      console.error('Error accepting friend request:', error);
-    }
-  }, [notifications, userId]);
+    },
+    [userId]
+  );
 
-  const declineFriendRequest = useCallback(async (notificationId: string) => {
-    const notification = notifications.find(n => n.id === notificationId);
-    if (!notification?.senderId || !userId) return;
-
-    try {
-      // Call your backend API to decline the friend request
-      const response = await fetch('/api/friends/decline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ friendId: notification.senderId })
-      });
-
-      if (response.ok) {
-        // Remove notification from Firebase
-        const notificationRef = ref(database, `notifications/${userId}/${notificationId}`);
-        await remove(notificationRef);
-        console.log('Friend request declined and notification removed');
-      }
-    } catch (error) {
-      console.error('Error declining friend request:', error);
-    }
-  }, [notifications, userId]);
-
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
   return {
     notifications,
@@ -192,10 +146,9 @@ export function useFirebaseNotifications(userId?: string): UseFirebaseNotificati
     isConnected,
     markAsRead,
     markAllAsRead,
-    acceptFriendRequest,
-    declineFriendRequest
+   respondToRequest
   };
 }
 
-// Export as useWebSocket for backward compatibility
+// backward compatibility
 export { useFirebaseNotifications as useWebSocket };

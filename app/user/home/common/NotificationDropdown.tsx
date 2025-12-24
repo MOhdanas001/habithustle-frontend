@@ -6,13 +6,12 @@ interface NotificationDropdownProps {
   notifications: Notification[];
   unreadCount: number;
   onMarkAllRead: () => void;
-  onAcceptFriend: (notificationId: number) => void;
-  onDeclineFriend: (notificationId: number) => void;
+ onRespondToRequest: (notificationId: number, accept: boolean) => void;
 }
 
 interface Notification {
   id: number;
-  type: 'bet_invite' | 'bet_won' | 'bet_completed' | 'streak_milestone' | 'friend_joined' | 'FRIEND_REQUEST_RECEIVED';
+  type: 'bet_invite' | 'bet_won' | 'bet_completed' | 'streak_milestone' | 'friend_joined' | 'FRIEND_REQUEST';
   title: string;
   message: string;
   time: string;
@@ -23,7 +22,7 @@ interface Notification {
 
 const getNotificationIcon = (type: Notification['type']) => {
   switch (type) {
-    case 'FRIEND_REQUEST_RECEIVED':
+    case 'FRIEND_REQUEST':
       return { icon: Users, color: 'text-pink-500' };
     case 'bet_invite':
       return { icon: UserPlus, color: 'text-blue-500' };
@@ -46,9 +45,10 @@ export default function NotificationDropdown({
   notifications,
   unreadCount,
   onMarkAllRead,
-  onAcceptFriend,
-  onDeclineFriend
+  onRespondToRequest
 }: NotificationDropdownProps) {
+        
+console.log('Rendering NotificationDropdown with notifications:', notifications);
 
   return (
     <div
@@ -105,12 +105,13 @@ export default function NotificationDropdown({
                     </div>
                     
                     {/* Friend Request Action Buttons */}
-                    {notification.type === 'friend_request' && (
+                    {notification.type === 'FRIEND_REQUEST' && (
                       <div className="flex gap-2 mt-3">
+                        <h1>{notification.senderName} wants to be your friend</h1>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onAcceptFriend(notification.id);
+                            onRespondToRequest(notification.id, true);
                           }}
                           className="flex-1 px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-lg transition-all"
                         >
@@ -119,7 +120,7 @@ export default function NotificationDropdown({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onDeclineFriend(notification.id);
+                            onRespondToRequest(notification.id, false);
                           }}
                           className="flex-1 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-semibold rounded-lg transition-all"
                         >

@@ -1,11 +1,12 @@
 'use client';
-import React, { useState } from 'react';
-import { Trophy, Users, TrendingUp, Flame, Target, ArrowRight, Zap, X, Sparkles } from 'lucide-react';
-import { SignupModal } from './user/home/common/SignupModal';
-
+import { Trophy, Users, TrendingUp, Flame, Target, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function HabitBetLanding() {
-  const [showLoginModal, setShowLoginModal] = useState(false);
+
+
+  const handleActionClick = () => {
+   console.log("Action clicked"); // Placeholder for action click handler
+  }
 
   const featuredBets = [
     { id: 1, habit: '🏃‍♂️ Morning Workout', participants: 156, stake: 5000, category: 'Fitness', trending: true, color: 'from-blue-400 to-cyan-400' },
@@ -29,39 +30,10 @@ export default function HabitBetLanding() {
     { icon: Trophy, title: 'Win Rewards', desc: 'Complete habits and earn your stakes', color: 'from-yellow-400 to-orange-500' },
   ];
 
-  const handleActionClick = () => {
-    setShowLoginModal(true);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-purple-600 text-white p-2.5 rounded-2xl shadow-lg">
-                <Trophy className="w-7 h-7" />
-              </div>
-              <h1 className="text-3xl font-black bg-gradient-to-r from-purple-500 to-purple-600 bg-clip-text text-transparent">HabitBet</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={handleActionClick}
-                className="text-gray-700 hover:text-purple-600 transition-colors font-bold hidden sm:block"
-              >
-                Sign In
-              </button>
-              <button 
-                onClick={handleActionClick}
-                className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-7 py-3 rounded-2xl font-black hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
-              >
-                Get Started ✨
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 text-center">
@@ -79,7 +51,7 @@ export default function HabitBetLanding() {
             Challenge friends, stay accountable, and earn rewards by completing your daily habits. Turn self-improvement into a competitive game 🎮
           </p>
           <button 
-            onClick={handleActionClick}
+            // onClick={handleActionClick}
             className="bg-purple-500 text-white px-10 py-5 rounded-2xl font-black text-xl hover:bg-purple-600 transition-all transform hover:scale-110 inline-flex items-center space-x-3 shadow-2xl"
           >
             <span>Start Your First Bet</span>
@@ -203,7 +175,7 @@ export default function HabitBetLanding() {
           {topPerformers.map((performer) => (
             <div
               key={performer.rank}
-              onClick={handleActionClick}
+              // onClick={handleActionClick}
               className="bg-white border-2 border-purple-200 rounded-3xl p-7 hover:shadow-2xl hover:border-purple-400 transition-all cursor-pointer flex items-center justify-between transform hover:scale-105"
             >
               <div className="flex items-center space-x-5">
@@ -240,7 +212,7 @@ export default function HabitBetLanding() {
             Join thousands of users who are transforming their lives, one bet at a time.
           </p>
           <button 
-            onClick={handleActionClick}
+            // onClick={handleActionClick}
             className="bg-white text-purple-600 px-10 py-5 rounded-2xl font-black text-xl hover:bg-gray-100 transition-all transform hover:scale-110 inline-flex items-center space-x-3 shadow-2xl"
           >
             <span>Create Your First Bet</span>
@@ -262,10 +234,7 @@ export default function HabitBetLanding() {
         </div>
       </footer>
 
-      {/* Login/Signup Modal */}
-      {showLoginModal && (
-        <SignupModal setShowLoginModal={setShowLoginModal} />
-      )}
+      
     </div>
   );
 }

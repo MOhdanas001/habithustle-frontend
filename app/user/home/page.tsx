@@ -1,66 +1,32 @@
 "use client";
-import React, { useState, useRef } from 'react';
+import  { useState, } from 'react';
 import { Search, TrendingUp, Users, Trophy, Calendar, Target, Plus, UserPlus, Award, Flame, Zap, User, LogOut, Bell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/app/context/UserContext';
-import { useFirebaseNotifications } from '@/app/hooks/useFirebaseNotifications';
-import path from 'path';
-import NotificationDropdown from './common/NotificationDropdown';
+
+
 
 
 export default function HabitBetDashboard() {
   const [activeTab, setActiveTab] = useState('active');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showNotificationMenu, setShowNotificationMenu] = useState(false);
-  const menuTimeout = useRef<NodeJS.Timeout | null>(null);
-  const router = useRouter();
-  const { user, loading, error } = useUser();
-  console.log("User data in HabitBetDashboard:", user);
-  const { 
-    notifications, 
-    unreadCount, 
-    isConnected, 
-    markAllAsRead, 
-    acceptFriendRequest, 
-    declineFriendRequest 
-  } = useFirebaseNotifications(user?.id);
+const router = useRouter();
 
-  async function handleLogout() {
-    try {
-      const res=await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-     if (res.ok) {
-        router.push('/');
-      }
-    } catch (err) {
-      console.error('Logout failed', err);
-    }
-  }
 
   // Show loading state
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
+  //         <p className="mt-4 text-gray-600">Loading...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // Show error state
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-red-600">
-          <p>Error loading user data</p>
-          <p className="text-sm">{error.message}</p>
-        </div>
-      </div>
-    );
-  }
+
 
   const stats = [
     { icon: Target, value: '3', label: 'Active Bets', trend: '+2' },
@@ -127,119 +93,13 @@ export default function HabitBetDashboard() {
     bet.habit.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleMouseEnter = (type:'profile' | 'notification') => {
-    if (menuTimeout.current) {
-      clearTimeout(menuTimeout.current);
-    }
-    if (type === 'profile') {
-      setShowProfileMenu(true);
-      setShowNotificationMenu(false);
-    } else {
-      setShowNotificationMenu(true);
-      setShowProfileMenu(false);
-    }
-  };
-
-  const handleMouseLeave = (type:'profile' | 'notification') => {
-    menuTimeout.current = setTimeout(() => {
-      if (type === 'profile') {
-        setShowProfileMenu(false);
-        setShowNotificationMenu(false);
-      } else {
-        setShowNotificationMenu(false);
-        setShowProfileMenu(false);
-      }
-    }, 200);
-  };
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 text-gray-800 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <nav className="flex justify-between items-center mb-8 p-5 bg-white rounded-3xl shadow-md backdrop-blur-sm border border-gray-100 relative z-50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl flex items-center justify-center">
-              <Trophy className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-3xl font-black bg-gradient-to-r from-purple-500 to-purple-600 bg-clip-text text-transparent">
-              HabitBet
-            </h1>
-          </div>
-          <div className="flex gap-3 items-center">
-            <button className="px-6 py-3 bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white font-bold rounded-2xl transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
-              <Plus className="w-5 h-5 inline mr-2" />
-              Create Bet
-            </button>
-            
-            {/* Notification Bell with Badge */}
-            <div className="relative">
-              <button
-                onMouseEnter={() => handleMouseEnter('notification')}
-                onMouseLeave={() => handleMouseLeave('notification')}
-                className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold hover:shadow-lg transition-all transform hover:scale-105 relative"
-              >
-                <Bell className="w-6 h-6" />
-                {/* Notification Badge - Only show if there are unread notifications */}
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[24px] h-6 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white shadow-lg">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
-                {/* Connection status indicator */}
-                {isConnected && (
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></span>
-                )}
-              </button>
-              
-              {/* Dropdown Menu */}
-              {showNotificationMenu && (
-                <NotificationDropdown 
-                  handleMouseEnter={handleMouseEnter} 
-                  handleMouseLeave={handleMouseLeave}
-                  notifications={notifications}
-                  unreadCount={unreadCount}
-                  onMarkAllRead={markAllAsRead}
-                  onAcceptFriend={acceptFriendRequest}
-                  onDeclineFriend={declineFriendRequest}
-                />
-              )}
-            </div>
-            <div className="relative">
-              <button
-                onMouseEnter={() => handleMouseEnter('profile')}
-                onMouseLeave={() => handleMouseLeave('profile')}
-                className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold hover:shadow-lg transition-all transform hover:scale-105"
-              >
-                {user?.name?.charAt(0) || 'U'}
-              </button>
-              
-              {/* Dropdown Menu */}
-              {showProfileMenu && (
-                <div
-                  onMouseEnter={() => handleMouseEnter('profile')}
-                  onMouseLeave={() => handleMouseLeave('profile')}
-                  className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-[100]"
-                >
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="font-bold text-gray-800">{user?.name || 'User'}</p>
-                    <p className="text-sm text-gray-500">{user?.email || 'No email'}</p>
-                    <span className="inline-block mt-2 text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-lg font-semibold">
-                      {user?.role || 'Member'}
-                    </span>
-                  </div>
-                  <button className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-all flex items-center gap-3 text-gray-700 font-semibold">
-                    <User className="w-5 h-5 text-purple-500" />
-                    Profile
-                  </button>
-                  <button onClick={handleLogout} className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-all flex items-center gap-3 text-red-600 font-semibold">
-                    <LogOut className="w-5 h-5" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </nav>
+    
 
         {/* Welcome Section */}
         <div className="mb-8 p-8 bg-gradient-to-br from-purple-400 to-purple-500 rounded-3xl shadow-lg relative overflow-hidden">
