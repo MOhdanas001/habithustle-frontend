@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Search, UserPlus, Check, X } from "lucide-react";
+import { friendsApi } from "../../hooks/useroute";
 
 type UserSearch = {
   id: string;
@@ -31,18 +32,14 @@ export default function FriendsPage() {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(
-          `/api/search/friends?q=${encodeURIComponent(query)}`,
-          { signal: controller.signal }
-        );
-
+        const res = await friendsApi.search(query);
         const json = await res.json();
 
         if (!res.ok || !json.success) {
           throw new Error(json.message || "Search failed");
         }
-
         setUsers(json.data);
+
       } catch (err: any) {
         if (err.name !== "AbortError") {
           setError("Failed to search users");
@@ -56,28 +53,23 @@ export default function FriendsPage() {
   }, [query]);
 
   /* ---------------- SEND FRIEND REQUEST ---------------- */
-const sendRequest = async (userId: string) => {
-  if (sentIds.includes(userId)) return;
+  const sendRequest = async (userId: string) => {
+    if (sentIds.includes(userId)) return;
 
-  try {
-    const res = await fetch(
-      `/api/friends/send-request?toUserId=${encodeURIComponent(userId)}`,
-      {
-        method: "POST",
+    try {
+      const res = await friendsApi.sendRequest({ friendId: userId });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Request failed");
       }
-    );
 
-    const json = await res.json();
-
-    if (!res.ok || !json.success) {
-      throw new Error(json.message || "Request failed");
+      setSentIds((prev) => [...prev, userId]);
+    } catch (err) {
+      alert("Failed to send request");
     }
-
-    setSentIds((prev) => [...prev, userId]);
-  } catch (err) {
-    alert("Failed to send request");
-  }
-};
+  };
 
 
   /* ---------------- UI ---------------- */

@@ -2,6 +2,8 @@
 import  { useState, } from 'react';
 import { Search, TrendingUp, Users, Trophy, Calendar, Target, Plus, UserPlus, Award, Flame, Zap, User, LogOut, Bell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/app/context/UserContext';
+import { betApi } from '@/app/hooks/useroute';
 
 
 
@@ -9,23 +11,8 @@ import { useRouter } from 'next/navigation';
 export default function HabitBetDashboard() {
   const [activeTab, setActiveTab] = useState('active');
   const [searchQuery, setSearchQuery] = useState('');
-const router = useRouter();
-
-
-  // Show loading state
-
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <div className="text-center">
-  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-  //         <p className="mt-4 text-gray-600">Loading...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // Show error state
+  const router = useRouter();
+  const { loading } = useUser();
 
 
   const stats = [
@@ -95,12 +82,13 @@ const router = useRouter();
 
  
 
+  if (loading) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 text-gray-800 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-    
-
         {/* Welcome Section */}
         <div className="mb-8 p-8 bg-gradient-to-br from-purple-400 to-purple-500 rounded-3xl shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>

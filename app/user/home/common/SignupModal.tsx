@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { X, Mail, Lock, Trophy } from "lucide-react";
 import { useForm } from "react-hook-form";
-// import { useRouter } from "next/router";
-// import { useForm } from "react-hook-form";
-// import { login, register  } from "../api/auth";
 import { useRouter } from "next/navigation";
+import { useUser } from "../../../context/UserContext";
+import { authApi } from "../../../hooks/useroute";
 
 interface FormData {
   email: string;
@@ -32,55 +31,37 @@ export const SignupModal = ({ setShowLoginModal }: Props) => {
   formState: { errors },
 } = useForm<FormData>();
   const router = useRouter();
+  const { refetch } = useUser();
 
 const onSubmit = async (data: FormData) => {
   setApiError(null);
   setIsLoading(true);
 
   try {
-    const endpoint = isLogin
-      ? "/api/auth/login"
-      : "/api/auth/register";
-
-    const payload = isLogin
-      ? {
-          identifier: data.email,
-          password: data.password,
-        }
-      : {
-          name: data.name,
-          username: data.username,
+    const res = isLogin
+      ? await authApi.login({
           email: data.email,
           password: data.password,
-        };
-
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+        })
+      : await authApi.register({
+          name: data.name!,
+          email: data.email,
+          password: data.password,
+        });
 
     const result = await res.json();
 
     if (!res.ok) {
       throw new Error(result.message || "Something went wrong");
     }
-
-    // On success, navigate client-side. Accept either 'Admin' or 'admin'.
+    await refetch();
     if (result.user && (result.user.role === "Admin")) {
       router.push('/admin/dashboard');
     } else {
       router.push('/user/home');
     }
-
-    // ✅ SUCCESS
     setShowLoginModal(false);
     reset();
-    
-
-
   } catch (err: any) {
     setApiError(err.message);
   } finally {

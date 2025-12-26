@@ -6,6 +6,7 @@ import { useUser } from "../context/UserContext";
 import { useRouter } from "next/navigation";
 import NotificationDropdown from "../user/home/common/NotificationDropdown";
 import { SignupModal } from "../user/home/common/SignupModal";
+import PageLoader from "./PageLoader";
 
 
 export default function Navbar() {
@@ -13,15 +14,9 @@ export default function Navbar() {
     const [showNotificationMenu, setShowNotificationMenu] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const menuTimeout = useRef<NodeJS.Timeout | null>(null);
-    const { user } = useUser();
+    const { user, loading, refetch } = useUser();
     const router = useRouter();
-    const {
-        notifications,
-        unreadCount,
-        isConnected,
-        markAllAsRead,
-   respondToRequest
-    } = useFirebaseNotifications(user?.id);
+    const {notifications,unreadCount, isConnected,markAllAsRead,respondToRequest} = useFirebaseNotifications(user?.id);
 
     // Default CTA handler for unauthenticated users; shows signup/login modal
     const handleActionClick = () => {
@@ -34,11 +29,13 @@ export default function Navbar() {
             const res = await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
             if (res.ok) {
                 router.push('/');
+                refetch();
             }
         } catch (err) {
             console.error('Logout failed', err);
         }
     }
+
     const handleMouseEnter = (type: 'profile' | 'notification') => {
         if (menuTimeout.current) {
             clearTimeout(menuTimeout.current);
@@ -63,6 +60,11 @@ export default function Navbar() {
             }
         }, 200);
     };
+    // Prevent flicker: while auth state is loading, render a minimal placeholder
+    if(loading){
+        return <PageLoader  />;
+    } 
+
     if (!user) {
         return (
             <>
@@ -110,7 +112,7 @@ export default function Navbar() {
                 </h1>
             </div>
             <div className="flex gap-3 items-center">
-                <button onClick={()=>router.push('user/bet')} className="px-6 py-3 bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white font-bold rounded-2xl transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
+                <button onClick={()=>router.push('/user/bet')} className="px-6 py-3 bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white font-bold rounded-2xl transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
                     <Plus className="w-5 h-5 inline mr-2" />
                     Create Bet
                 </button>

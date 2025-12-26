@@ -5,7 +5,6 @@ export async function POST(request: Request) {
   try {
     const apiUrl = process.env.NEXT_API_URL;
     const body = await request.json();
- console.log("Request body:", body);
     if (!body || !body.senderId) {
       return NextResponse.json(
         { success: false, message: "senderId is required" },
