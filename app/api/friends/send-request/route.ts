@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const apiUrl = process.env.NEXT_API_URL;
-    const { searchParams } = new URL(request.url);
-    const toUserId = searchParams.get("toUserId");
+
+    const toUserId = await request.json().then((body) => body.toUserId);
 
     if (!toUserId) {
       return NextResponse.json(

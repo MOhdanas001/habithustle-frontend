@@ -1,17 +1,20 @@
 "use client";
 import { useState } from "react";
 
-export type Participant = { email: string };
+export type Participant = { id: string; email?: string; name?: string; username?: string };
+export type Verifier = { id: string; email?: string; name?: string; username?: string };
 export type CreateBetForm = {
   name: string;
   description: string;
-  amount: string; // kept as string for input control
+  amount: string;
   proofDescription: string;
-  participants: Participant[];
+  verifier: Verifier | null;
+  verifierId: string | null;
+  participantIds: string[];
   taskDays: string[];
-  allowedOffDays: string; // kept as string for input control
-  startDate: string; // yyyy-mm-dd from <input type="date">
-  endDate: string; // yyyy-mm-dd
+  allowedOffDays: string; 
+  startDate: string; 
+  endDate: string; 
 };
 
 export function useCreateBetForm(initial?: Partial<CreateBetForm>) {
@@ -21,7 +24,9 @@ export function useCreateBetForm(initial?: Partial<CreateBetForm>) {
     description: "",
     amount: "",
     proofDescription: "",
-    participants: [],
+    verifier: null,
+    verifierId: null,
+    participantIds: [],
     taskDays: [],
     allowedOffDays: "",
     startDate: "",
@@ -34,6 +39,7 @@ export function useCreateBetForm(initial?: Partial<CreateBetForm>) {
   const [success, setSuccess] = useState<boolean>(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    console.log("Input change:", e.target.name, e.target.value);
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -47,35 +53,66 @@ export function useCreateBetForm(initial?: Partial<CreateBetForm>) {
     }));
   };
 
-  const addParticipant = () => {
-    if (newParticipant.trim()) {
+  const addParticipant = (friend?: { id: string; email?: string; name?: string; username?: string }) => {
+    if (friend && friend.id) {
       setFormData((prev) => ({
         ...prev,
-        participants: [...prev.participants, { email: newParticipant.trim() }],
+        participantIds: [...prev.participantIds, friend.id],
+      }));
+      return;
+    }
+
+    if (newParticipant.trim()) {
+      const id = newParticipant.trim();
+      setFormData((prev) => ({
+        ...prev,
+        participants: [...prev.participants, { id, email: newParticipant.trim() }],
+        participantIds: [...prev.participantIds, id],
       }));
       setNewParticipant("");
     }
   };
 
-  const removeParticipant = (index: number) => {
+  const removeParticipant = (id: string) => {
+    setFormData((prev) => {
+      return {
+        ...prev,
+        participantIds: prev.participantIds.filter((participantId) => participantId !== id),
+      };
+    });
+  };
+
+  const addVerifier = (friend: { id: string; email?: string; name?: string; username?: string }) => {
     setFormData((prev) => ({
       ...prev,
-      participants: prev.participants.filter((_, i) => i !== index),
+      verifier: { id: friend.id, email: friend.email, name: friend.name, username: friend.username },
+      verifierId: friend.id,
     }));
   };
+
+  const removeVerifier = () => {
+    setFormData((prev) => ({
+      ...prev,
+      verifier: null,
+      verifierId: null,
+    }));
+  };
+
 
   const submit = async () => {
     setLoading(true);
     setError(null);
     setSuccess(false);
     try {
+      console.log("Submitting form data:", formData);
       // shape payload for backend
       const payload = {
         name: formData.name,
         description: formData.description,
         amount: Number(formData.amount || 0),
         proofDescription: formData.proofDescription,
-        participants: formData.participants.map((p) => p.email),
+        participantIds: formData.participantIds,
+        verifierId: formData.verifierId,
         taskDays: formData.taskDays, // e.g., ["Monday", "Wednesday"]
         allowedOffDays: Number(formData.allowedOffDays || 0),
         startDate: formData.startDate ? new Date(formData.startDate).toISOString() : null,
@@ -117,6 +154,8 @@ export function useCreateBetForm(initial?: Partial<CreateBetForm>) {
     handleDayToggle,
     addParticipant,
     removeParticipant,
+    addVerifier,
+    removeVerifier,
     submit,
   };
 }

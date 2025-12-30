@@ -13,7 +13,7 @@ export const authApi = {
       }),
     }),
 
-  register: (data: { email: string; password: string; name: string }) =>
+  register: (data: { email: string; password: string; name: string, username: string }) =>
     fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -56,11 +56,17 @@ export const betApi = {
       method: 'GET',
       credentials: 'include',
     }),
+
+  getUserBets: () =>
+    fetch('/api/get/bets', {
+      method: 'GET',
+      credentials: 'include',
+    }),
 };
 
 // Friends API calls
 export const friendsApi = {
-  sendRequest: (data: { friendId: string }) =>
+  sendRequest: (data: { toUserId: string }) =>
     fetch('/api/friends/send-request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

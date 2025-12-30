@@ -57,7 +57,7 @@ export default function FriendsPage() {
     if (sentIds.includes(userId)) return;
 
     try {
-      const res = await friendsApi.sendRequest({ friendId: userId });
+      const res = await friendsApi.sendRequest({ toUserId: userId });
 
       const json = await res.json();
 

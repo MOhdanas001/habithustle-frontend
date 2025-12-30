@@ -4,16 +4,20 @@ import { Trophy, Users, Calendar, DollarSign, Search, X, Target } from 'lucide-r
 import { useCreateBetForm } from '../../hooks/useCreateBetForm';
 import { betApi } from '@/app/hooks/useroute';
 import { Datepicker } from 'flowbite-react';
+import { FriendsListItem } from '@/app/types/types';
+
+export type Participant = { id: string; email?: string; name?: string; username?: string };
 
 export default function CreateBetPage() {
   const {
     formData,
     handleInputChange,
     handleDayToggle,
-    newParticipant,
     setNewParticipant,
     addParticipant,
     removeParticipant,
+    addVerifier,
+    removeVerifier,
     submit,
     loading,
     error,
@@ -21,9 +25,11 @@ export default function CreateBetPage() {
   } = useCreateBetForm();
 
   const [friendsDropdownOpen, setFriendsDropdownOpen] = useState(false);
+  const [verifierDropdownOpen, setVerifierDropdownOpen] = useState(false);
   const [friendSearch, setFriendSearch] = useState('');
-  const [friends, setFriends] = useState([]);
+  const [friends, setFriends] = useState<FriendsListItem[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] = useState<Participant[]>([]);
 
   const daysOfWeek = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
@@ -54,25 +60,37 @@ export default function CreateBetPage() {
 
   const filteredFriends = useMemo(() => {
     const q = friendSearch.trim().toLowerCase();
-    if (!q) return friends;
-    return friends.filter((f) => {
+    // exclude already selected participants and the selected verifier
+    const base = friends.filter((f: FriendsListItem) => {
+      const isVerifier = formData.verifierId && formData.verifierId === f.id;
+      const isParticipant = formData.participantIds && formData.participantIds.includes(f.id);
+      return !isVerifier && !isParticipant;
+    });
+
+    if (!q) return base;
+    return base.filter((f:FriendsListItem) => {
       const display = (f.username || f.name || '').toLowerCase();
       return display.includes(q) || f.email.toLowerCase().includes(q);
     });
   }, [friends, friendSearch]);
 
-  const addFriendAsParticipant = (friend) => {
-    if (!formData.participants.some(p => p.email === friend.email)) {
-      setNewParticipant(friend.email);
-      addParticipant();
+  const addFriendAsParticipant = (friend:FriendsListItem) => {
+    if (!formData.participantIds.includes(friend.id)) {
+      addParticipant(friend);
+      setSelectedParticipant(prev => [...prev, { id: friend.id, name: friend.name }]);
       setFriendsDropdownOpen(false);
     }
   };
 
-  const removeParticipantByEmail = (email) => {
-    const index = formData.participants.findIndex(p => p.email === email);
+  const removeParticipantByEmail = (id: string) => {
+    const index = formData.participantIds.findIndex(p => p === id);
     if (index !== -1) {
-      removeParticipant(index);
+      removeParticipant(id);
+      setSelectedParticipant(prev => {
+        const newSelected = [...prev];
+        newSelected.splice(index, 1);
+        return newSelected;
+      });
     }
   };
 
@@ -277,7 +295,7 @@ export default function CreateBetPage() {
               </div>
             </div>
 
-            {/* Participants Section */}
+            {/* participants section */}
             <div style={{ paddingTop: '2rem', borderTop: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
                 <Users style={{ width: '20px', height: '20px', color: '#667eea' }} />
@@ -287,55 +305,58 @@ export default function CreateBetPage() {
               </div>
 
               {/* Selected Participants */}
-              {formData.participants.length > 0 && (
+              {selectedParticipant.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-                  {formData.participants.map((participant) => (
-                    <div
-                      key={participant.email}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.5rem 1rem',
-                        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-                        borderRadius: '20px',
-                        border: '1px solid rgba(102, 126, 234, 0.2)'
-                      }}
-                    >
-                      <div style={{
-                        width: '28px',
-                        height: '28px',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontSize: '0.75rem',
-                        fontWeight: '600'
-                      }}>
-                        {participant.email.charAt(0).toUpperCase()}
-                      </div>
-                      <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#4a5568' }}>
-                        {participant.email}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeParticipantByEmail(participant.email)}
+                  {selectedParticipant.map((participant) => {
+                    const label = participant.name;
+                    return (
+                      <div
+                        key={participant.id}
                         style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#a0aec0',
-                          cursor: 'pointer',
-                          padding: 0,
-                          display: 'flex',
-                          alignItems: 'center'
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          padding: '0.5rem 1rem',
+                          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+                          borderRadius: '20px',
+                          border: '1px solid rgba(102, 126, 234, 0.2)'
                         }}
                       >
-                        <X style={{ width: '16px', height: '16px' }} />
-                      </button>
-                    </div>
-                  ))}
+                        <div style={{
+                          width: '28px',
+                          height: '28px',
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '0.75rem',
+                          fontWeight: '600'
+                        }}>
+                          {String(label).charAt(0).toUpperCase()}
+                        </div>
+                        <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#4a5568' }}>
+                          {label}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeParticipantByEmail(participant.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#a0aec0',
+                            cursor: 'pointer',
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <X style={{ width: '16px', height: '16px' }} />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -423,12 +444,203 @@ export default function CreateBetPage() {
                         ) : filteredFriends.length > 0 ? (
                           <div>
                             {filteredFriends.map((friend) => {
-                              const isAdded = formData.participants.some(p => p.email === friend.email);
+                              const isAdded = (formData.participantIds || []).includes(friend.id) || formData.verifierId === friend.id;
+
                               return (
                                 <button
                                   key={friend.id}
                                   type="button"
                                   onClick={() => addFriendAsParticipant(friend)}
+                                  disabled={isAdded}
+                                  style={{
+                                    width: '100%',
+                                    display: isAdded ? 'none' : 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.625rem',
+                                    padding: '0.625rem 0.75rem',
+                                    background: 'white',
+                                    border: 'none',
+                                    borderBottom: '1px solid #f7fafc',
+                                    cursor: isAdded ? 'not-allowed' : 'pointer',
+                                    opacity: isAdded ? 0.4 : 1,
+                                    textAlign: 'left',
+                                    transition: 'background 0.2s',
+                                    fontFamily: 'inherit'
+                          
+                                  }}
+                                  onMouseEnter={(e) => !isAdded && (e.currentTarget.style.background = '#f7fafc')}
+                                  onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                >
+                                  <div style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: 'white',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '600',
+                                    flexShrink: 0
+                                  }}>
+                                    {friend.name.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontSize: '0.8125rem', fontWeight: '500', color: '#1a202c', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {friend.name}
+                                    </div>
+                                    <div style={{ fontSize: '0.6875rem', color: '#a0aec0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {friend.email}
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div style={{ padding: '1.5rem', textAlign: 'center', color: '#a0aec0', fontSize: '0.875rem' }}>
+                            {friendSearch ? 'No matches' : 'No friends'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            <div style={{ paddingTop: '2rem', borderTop: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                <Users style={{ width: '20px', height: '20px', color: '#667eea' }} />
+                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1a202c', margin: 0 }}>
+                  Verifier
+                </h2>
+              </div>
+
+              {/* Selected Verifier */}
+              {formData.verifier && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+                      borderRadius: '20px',
+                      border: '1px solid rgba(102, 126, 234, 0.2)'
+                    }}
+                  >
+                    <div style={{
+                      width: '28px',
+                      height: '28px',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '0.75rem',
+                      fontWeight: '600'
+                    }}>
+                      {formData.verifier.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#4a5568' }}>
+                      {formData.verifier.name}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {/* Add Friends Dropdown */}
+              <div style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  onClick={() => setVerifierDropdownOpen(!verifierDropdownOpen)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    border: 'none',
+                    borderBottom: '2px solid #e2e8f0',
+                    background: 'white',
+                    textAlign: 'left',
+                    color: '#a0aec0',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    outline: 'none',
+                    fontFamily: 'inherit'
+                  }}
+                >
+                  <span>Add a verifier</span>
+                  <Users style={{ width: '18px', height: '18px', color: '#667eea' }} />
+                </button>
+
+                {verifierDropdownOpen && (
+                  <>
+                    <div 
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 10
+                      }}
+                      onClick={() => setVerifierDropdownOpen(false)}
+                    />
+                    
+                    <div style={{
+                      position: 'absolute',
+                      zIndex: 20,
+                      width: '100%',
+                      marginTop: '0.5rem',
+                      background: 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+                      overflow: 'hidden',
+                      maxHeight: '280px'
+                    }}>
+                      {/* Search */}
+                      <div style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+                        <div style={{ position: 'relative' }}>
+                          <Search style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#a0aec0' }} />
+                          <input
+                            type="text"
+                            value={friendSearch}
+                            onChange={(e) => setFriendSearch(e.target.value)}
+                            placeholder="Search friends..."
+                            style={{
+                              width: '100%',
+                              paddingLeft: '2.25rem',
+                              paddingRight: '0.75rem',
+                              paddingTop: '0.5rem',
+                              paddingBottom: '0.5rem',
+                              background: '#f7fafc',
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '8px',
+                              fontSize: '0.875rem',
+                              outline: 'none',
+                              fontFamily: 'inherit'
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Friends List */}
+                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {friendsLoading ? (
+                          <div style={{ padding: '1.5rem', textAlign: 'center', color: '#a0aec0', fontSize: '0.875rem' }}>
+                            Loading...
+                          </div>
+                        ) : friends.length > 0 ? (
+                          <div>
+                            {friends.map((friend) => {
+                              const isAdded = formData.verifierId === friend.id;
+                              return (
+                                <button
+                                  key={friend.id}
+                                  type="button"
+                                  onClick={() => addVerifier(friend)}
                                   disabled={isAdded}
                                   style={{
                                     width: '100%',
