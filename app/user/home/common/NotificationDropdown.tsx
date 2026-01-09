@@ -54,19 +54,19 @@ console.log('Rendering NotificationDropdown with notifications:', notifications)
     <div
       onMouseEnter={() => handleMouseEnter('notification')}
       onMouseLeave={() => handleMouseLeave('notification')}
-      className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-xl border border-gray-100 z-[100] max-h-[500px] overflow-hidden flex flex-col"
+      className="absolute right-0 mt-2 w-96 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-[100] max-h-[500px] overflow-hidden flex flex-col"
     >
       {/* Header */}
-      <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-purple-50 to-pink-50">
+      <div className="px-5 py-4 border-b border-slate-700 flex justify-between items-center bg-gradient-to-r from-cyan-500/10 to-blue-500/10">
         <div>
-          <h3 className="font-bold text-gray-800 text-lg">Notifications</h3>
+          <h3 className="font-bold text-white text-lg">Notifications</h3>
           {unreadCount > 0 && (
-            <p className="text-xs text-purple-600 font-semibold">
+            <p className="text-xs text-cyan-400 font-semibold">
               {unreadCount} new notification{unreadCount !== 1 ? 's' : ''}
             </p>
           )}
         </div>
-        <button className="text-xs text-purple-600 hover:text-purple-700 font-semibold hover:underline" onClick={onMarkAllRead}>
+        <button className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold hover:underline" onClick={onMarkAllRead}>
           Mark all read
         </button>
       </div>
@@ -79,27 +79,27 @@ console.log('Rendering NotificationDropdown with notifications:', notifications)
             return (
               <div
                 key={notification.id}
-                className={`px-5 py-4 hover:bg-gray-50 transition-all cursor-pointer border-b border-gray-50 last:border-b-0 ${
-                  notification.unread ? 'bg-purple-50/30' : ''
+                className={`px-5 py-4 hover:bg-slate-800/80 transition-all cursor-pointer border-b border-slate-700 last:border-b-0 ${
+                  notification.unread ? 'bg-cyan-500/10' : ''
                 }`}
               >
                 <div className="flex gap-3">
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center ${color}`}>
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center ${color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="font-semibold text-gray-800 text-sm">
+                      <h4 className="font-semibold text-white text-sm">
                         {notification.title}
                       </h4>
                       {notification.unread && (
-                        <div className="w-2 h-2 bg-purple-500 rounded-full flex-shrink-0 mt-1"></div>
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full flex-shrink-0 mt-1"></div>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                    <p className="text-sm text-slate-300 mt-1 line-clamp-2">
                       {notification.message}
                     </p>
-                    <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
+                    <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
                       <Clock className="w-3 h-3" />
                       <span>{notification.time}</span>
                     </div>
@@ -113,7 +113,7 @@ console.log('Rendering NotificationDropdown with notifications:', notifications)
                             e.stopPropagation();
                             onRespondToRequest(notification.id, true);
                           }}
-                          className="flex-1 px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-lg transition-all"
+                          className="flex-1 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-xs font-semibold rounded-lg transition-all"
                         >
                           Accept
                         </button>
@@ -122,7 +122,7 @@ console.log('Rendering NotificationDropdown with notifications:', notifications)
                             e.stopPropagation();
                             onRespondToRequest(notification.id, false);
                           }}
-                          className="flex-1 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-semibold rounded-lg transition-all"
+                          className="flex-1 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-all"
                         >
                           Decline
                         </button>
@@ -134,9 +134,9 @@ console.log('Rendering NotificationDropdown with notifications:', notifications)
             );
           })
         ) : (
-          <div className="px-5 py-12 text-center text-gray-400">
-            <div className="w-16 h-16 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
-              <Trophy className="w-8 h-8 text-gray-300" />
+          <div className="px-5 py-12 text-center text-slate-400">
+            <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center">
+              <Trophy className="w-8 h-8 text-white" />
             </div>
             <p className="font-semibold">No notifications</p>
             <p className="text-sm mt-1">You're all caught up!</p>
@@ -146,8 +146,8 @@ console.log('Rendering NotificationDropdown with notifications:', notifications)
 
       {/* Footer */}
       {notifications.length > 0 && (
-        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
-          <button className="w-full text-center text-sm font-semibold text-purple-600 hover:text-purple-700 transition-all">
+        <div className="px-5 py-3 border-t border-slate-700 bg-slate-800/80">
+          <button className="w-full text-center text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-all">
             View all notifications
           </button>
         </div>

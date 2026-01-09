@@ -25,18 +25,17 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isRoot && user) {
-    console.log("Redirecting authenticated user from root to their dashboard");
     const role = (user.role || "").toLowerCase();
     const target = role === "admin" ? "/admin/dashboard" : "/user/home";
     return NextResponse.redirect(new URL(target, request.url));
   }
 
   if ((isUserArea || isAdminArea) && !user) {
-    return NextResponse.redirect(new URL("/403", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (isAdminArea && user && String(user.role).toLowerCase() !== "admin") {
-    return NextResponse.redirect(new URL("/403", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

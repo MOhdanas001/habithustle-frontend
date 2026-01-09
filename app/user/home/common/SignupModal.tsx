@@ -71,25 +71,25 @@ const onSubmit = async (data: FormData) => {
 };
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white border border-gray-100 rounded-2xl max-w-md w-full p-8 relative shadow-2xl">
+      <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-8 relative shadow-2xl">
 
         {/* Close Button */}
         <button
           onClick={() => setShowLoginModal(false)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors"
+          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
         >
           <X className="w-6 h-6" />
         </button>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="bg-gradient-to-br from-purple-400 to-purple-500 text-white p-3 rounded-xl inline-block mb-4 shadow-md">
+          <div className="bg-gradient-to-br from-cyan-400 to-blue-500 text-white p-3 rounded-xl inline-block mb-4 shadow-md">
             <Trophy className="w-8 h-8" />
           </div>
-          <h3 className="text-2xl font-bold mb-2 text-gray-900">
+          <h3 className="text-2xl font-bold mb-2 text-white">
             {isLogin ? "Welcome Back!" : "Start Your Journey"}
           </h3>
-          <p className="text-gray-500">
+          <p className="text-slate-300">
             {isLogin
               ? "Sign in to continue betting"
               : "Create an account to get started"}
@@ -98,7 +98,7 @@ const onSubmit = async (data: FormData) => {
 
         {/* Error Message */}
         {apiError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="mb-4 p-3 bg-red-900/20 border border-red-700 rounded-lg text-red-400 text-sm">
             {apiError}
           </div>
         )}
@@ -109,15 +109,15 @@ const onSubmit = async (data: FormData) => {
           {!isLogin && (
             <>
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700">Name</label>
+              <label className="block text-sm font-medium mb-2 text-white">Name</label>
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Your name"
-                  className={`w-full bg-gray-50 border rounded-lg pl-4 pr-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none ${
+                  className={`w-full bg-slate-800 border rounded-lg pl-4 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none ${
                     errors.name
                       ? "border-red-500 focus:border-red-500"
-                      : "border-gray-200 focus:border-purple-400"
+                      : "border-slate-700 focus:border-cyan-400"
                   }`}
                   {...register("name", {
                     required: !isLogin ? "Name is required" : false,
@@ -129,15 +129,15 @@ const onSubmit = async (data: FormData) => {
               {errors.name && <span className="text-red-500 text-xs mt-1 block">{errors.name.message}</span>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700">Username</label>
+              <label className="block text-sm font-medium mb-2 text-white">Username</label>
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Choose a username"
-                  className={`w-full bg-gray-50 border rounded-lg pl-4 pr-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none ${
+                  className={`w-full bg-slate-800 border rounded-lg pl-4 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none ${
                     errors.username
                       ? "border-red-500 focus:border-red-500"
-                      : "border-gray-200 focus:border-purple-400"
+                      : "border-slate-700 focus:border-cyan-400"
                   }`}
                   {...register("username", {
                     required: !isLogin ? "Username is required" : false,
@@ -153,16 +153,16 @@ const onSubmit = async (data: FormData) => {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Email</label>
+            <label className="block text-sm font-medium mb-2 text-white">Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="email"
                 placeholder="you@example.com"
-                className={`w-full bg-gray-50 border rounded-lg pl-11 pr-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none ${
+                className={`w-full bg-slate-800 border rounded-lg pl-11 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none ${
                   errors.email
                     ? "border-red-500 focus:border-red-500"
-                    : "border-gray-200 focus:border-purple-400"
+                    : "border-slate-700 focus:border-cyan-400"
                 }`}
                 {...register("email", {
                   required: "Email is required",
@@ -178,16 +178,16 @@ const onSubmit = async (data: FormData) => {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Password</label>
+            <label className="block text-sm font-medium mb-2 text-white">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="password"
                 placeholder="••••••••"
-                className={`w-full bg-gray-50 border rounded-lg pl-11 pr-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none ${
+                className={`w-full bg-slate-800 border rounded-lg pl-11 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none ${
                   errors.password
                     ? "border-red-500 focus:border-red-500"
-                    : "border-gray-200 focus:border-purple-400"
+                    : "border-slate-700 focus:border-cyan-400"
                 }`}
                 {...register("password", {
                   required: "Password is required",
@@ -204,7 +204,7 @@ const onSubmit = async (data: FormData) => {
           {/* Forgot Password */}
           {isLogin && (
             <div className="text-right">
-              <button type="button" className="text-sm text-purple-600 hover:text-purple-700 font-semibold">
+              <button type="button" className="text-sm text-cyan-400 hover:text-cyan-300 font-semibold">
                 Forgot password?
               </button>
             </div>
@@ -214,14 +214,14 @@ const onSubmit = async (data: FormData) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:from-purple-600 hover:to-purple-700 transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-3 rounded-lg font-bold hover:from-cyan-600 hover:to-blue-600 transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
           >
             {isLoading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
           </button>
         </form>
 
         {/* Toggle */}
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm text-slate-300">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
             onClick={() => {
@@ -229,7 +229,7 @@ const onSubmit = async (data: FormData) => {
               setApiError(null);
               reset();
             }}
-            className="text-purple-600 font-semibold hover:underline"
+            className="text-cyan-400 font-semibold hover:underline"
           >
             {isLogin ? "Sign Up" : "Sign In"}
           </button>

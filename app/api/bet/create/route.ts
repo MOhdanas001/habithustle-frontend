@@ -28,12 +28,6 @@ export async function POST(req: Request) {
       },
     });
     const data = await result.json();
-
-  console.log("Create Bet API response:", {
-        status: result.status,
-        ok: result.ok,
-        data,
-      });
     return NextResponse.json(data, { status: result.status });
   } catch (e: any) {
     const message = e?.message || "Failed to create bet";

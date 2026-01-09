@@ -88,54 +88,54 @@ export default function HabitBetDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 text-gray-800 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
       <div className="max-w-7xl mx-auto">
         {/* Welcome Section */}
-        <div className="mb-8 p-8 bg-gradient-to-br from-purple-400 to-purple-500 rounded-3xl shadow-lg relative overflow-hidden">
+        <div className="mb-8 p-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
           <div className="relative z-10">
             <h2 className="text-4xl font-black mb-3 text-white flex items-center gap-3">
               Welcome back, Champion! 🏆
             </h2>
-            <p className="text-purple-100 text-xl mb-3 font-semibold">Keep pushing your limits and winning bets</p>
+            <p className="text-blue-100 text-xl mb-3 font-semibold">Keep pushing your limits and winning bets</p>
           </div>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <div key={index} className="p-6 bg-white rounded-3xl shadow-md hover:shadow-lg transition-all transform hover:scale-105 border border-gray-100">
+            <div key={index} className="p-6 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-3xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 border border-slate-700">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center">
-                  <stat.icon className="w-7 h-7 text-purple-500" />
+                <div className="w-14 h-14 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center">
+                  <stat.icon className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-green-600 text-sm font-black bg-green-100 px-3 py-1.5 rounded-xl">{stat.trend}</span>
+                <span className="text-green-400 text-sm font-black bg-green-900/30 px-3 py-1.5 rounded-xl">{stat.trend}</span>
               </div>
-              <div className="text-4xl font-black text-purple-600 mb-2">
+              <div className="text-4xl font-black text-cyan-400 mb-2">
                 {stat.value}
               </div>
-              <div className="text-gray-600 text-sm font-semibold">{stat.label}</div>
+              <div className="text-slate-300 text-sm font-semibold">{stat.label}</div>
             </div>
           ))}
         </div>
          <BetsPage />
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <button className="p-8 bg-gradient-to-br from-purple-400 to-purple-500 text-white rounded-3xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+          <button className="p-8 bg-gradient-to-br from-cyan-500 to-blue-500 text-white rounded-3xl shadow-2xl hover:shadow-2xl transition-all transform hover:scale-105">
             <Plus className="w-12 h-12 mb-4 mx-auto" />
             <h3 className="font-black text-xl mb-2">Create New Bet</h3>
-            <p className="text-sm text-purple-100 font-semibold">Challenge friends on a new habit</p>
+            <p className="text-sm text-blue-100 font-semibold">Challenge friends on a new habit</p>
           </button>
-          <button className="p-8 bg-white text-gray-800 rounded-3xl shadow-md hover:shadow-lg border border-gray-200 hover:border-purple-300 transition-all transform hover:scale-105" onClick={() => router.push('/user/friends')}>
-            <UserPlus className="w-12 h-12 mb-4 mx-auto text-purple-500" />
+          <button className="p-8 bg-gradient-to-br from-slate-800/80 to-slate-900/80 text-white rounded-3xl shadow-xl hover:shadow-2xl border border-slate-700 hover:border-cyan-400 transition-all transform hover:scale-105" onClick={() => router.push('/user/friends')}>
+            <UserPlus className="w-12 h-12 mb-4 mx-auto text-cyan-400" />
             <h3 className="font-black text-xl mb-2">Invite Friends</h3>
-            <p className="text-sm text-gray-600 font-semibold">Add friends to your bets</p>
+            <p className="text-sm text-slate-300 font-semibold">Add friends to your bets</p>
           </button>
-          <button className="p-8 bg-white text-gray-800 rounded-3xl shadow-md hover:shadow-lg border border-gray-200 hover:border-purple-300 transition-all transform hover:scale-105">
-            <Award className="w-12 h-12 mb-4 mx-auto text-purple-500" />
+          <button className="p-8 bg-gradient-to-br from-slate-800/80 to-slate-900/80 text-white rounded-3xl shadow-xl hover:shadow-2xl border border-slate-700 hover:border-cyan-400 transition-all transform hover:scale-105">
+            <Award className="w-12 h-12 mb-4 mx-auto text-cyan-400" />
             <h3 className="font-black text-xl mb-2">Leaderboard</h3>
-            <p className="text-sm text-gray-600 font-semibold">See top performers</p>
+            <p className="text-sm text-slate-300 font-semibold">See top performers</p>
           </button>
         </div>
       </div>

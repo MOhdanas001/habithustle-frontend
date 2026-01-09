@@ -1,5 +1,7 @@
 'use client';
 
+import { View } from "lucide-react";
+
 // Auth API calls
 export const authApi = {
   login: (data: { email: string; password: string }) =>
@@ -62,6 +64,19 @@ export const betApi = {
       method: 'GET',
       credentials: 'include',
     }),
+
+  updatePayment: (data: {}) =>
+    fetch('/api/bet/payment', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify(data),
+    }),
+
+    ViewBet: (betId: string) =>
+  fetch(`/api/get/bet?betId=${betId}`, {
+    method: "GET",
+    credentials: "include",
+  })
 };
 
 // Friends API calls

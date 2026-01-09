@@ -68,25 +68,25 @@ export default function Navbar() {
     if (!user) {
         return (
             <>
-                <header className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-40 shadow-md">
+                <header className="border-b border-slate-700 bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl sticky top-0 z-40 shadow-2xl">
                     <div className="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <div className="bg-purple-600 text-white p-2.5 rounded-2xl shadow-lg">
+                                <div className="bg-gradient-to-br from-cyan-400 to-blue-500 text-white p-2.5 rounded-2xl shadow-lg">
                                     <Trophy className="w-7 h-7" />
                                 </div>
-                                <h1 className="text-3xl font-black bg-gradient-to-r from-purple-500 to-purple-600 bg-clip-text text-transparent">HabitBet</h1>
+                                <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">HabitBet</h1>
                             </div>
                             <div className="flex items-center space-x-4">
                                 <button
                                     onClick={handleActionClick}
-                                    className="text-gray-700 hover:text-purple-600 transition-colors font-bold hidden sm:block"
+                                    className="text-slate-300 hover:text-cyan-400 transition-colors font-bold hidden sm:block"
                                 >
                                     Sign In
                                 </button>
                                 <button
                                     onClick={handleActionClick}
-                                    className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-7 py-3 rounded-2xl font-black hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+                                    className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-7 py-3 rounded-2xl font-black hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg"
                                 >
                                     Get Started ✨
                                 </button>
@@ -102,17 +102,17 @@ export default function Navbar() {
     }
 
     return (
-        <nav className="flex justify-between items-center mb-8 p-5 bg-white rounded-3xl shadow-md backdrop-blur-sm border border-gray-100 relative z-50">
+        <nav className="border-b border-slate-700 bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl sticky top-0 z-40 shadow-2xl flex items-center justify-between px-6 py-4 ">
             <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center">
                     <Trophy className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="text-3xl font-black bg-gradient-to-r from-purple-500 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                     HabitBet
                 </h1>
             </div>
             <div className="flex gap-3 items-center">
-                <button onClick={()=>router.push('/user/bet')} className="px-6 py-3 bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white font-bold rounded-2xl transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
+                <button onClick={()=>router.push('/user/bet')} className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-bold rounded-2xl transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
                     <Plus className="w-5 h-5 inline mr-2" />
                     Create Bet
                 </button>
@@ -122,7 +122,7 @@ export default function Navbar() {
                     <button
                         onMouseEnter={() => handleMouseEnter('notification')}
                         onMouseLeave={() => handleMouseLeave('notification')}
-                        className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold hover:shadow-lg transition-all transform hover:scale-105 relative"
+                        className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold hover:shadow-lg transition-all transform hover:scale-105 relative"
                     >
                         <Bell className="w-6 h-6" />
                         {/* Notification Badge - Only show if there are unread notifications */}
@@ -154,7 +154,7 @@ export default function Navbar() {
                     <button
                         onMouseEnter={() => handleMouseEnter('profile')}
                         onMouseLeave={() => handleMouseLeave('profile')}
-                        className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold hover:shadow-lg transition-all transform hover:scale-105"
+                        className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold hover:shadow-lg transition-all transform hover:scale-105"
                     >
                         {user?.name?.charAt(0) || 'U'}
                     </button>
@@ -164,20 +164,20 @@ export default function Navbar() {
                         <div
                             onMouseEnter={() => handleMouseEnter('profile')}
                             onMouseLeave={() => handleMouseLeave('profile')}
-                            className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-[100]"
+                            className="absolute right-0 mt-2 w-56 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl border border-slate-700 py-2 z-[100]"
                         >
-                            <div className="px-4 py-3 border-b border-gray-100">
-                                <p className="font-bold text-gray-800">{user?.name || 'User'}</p>
-                                <p className="text-sm text-gray-500">{user?.email || 'No email'}</p>
-                                <span className="inline-block mt-2 text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-lg font-semibold">
+                            <div className="px-4 py-3 border-b border-slate-700">
+                                <p className="font-bold text-white">{user?.name || 'User'}</p>
+                                <p className="text-sm text-slate-400">{user?.email || 'No email'}</p>
+                                <span className="inline-block mt-2 text-xs bg-cyan-100 text-cyan-600 px-2 py-1 rounded-lg font-semibold">
                                     {user?.role || 'Member'}
                                 </span>
                             </div>
-                            <button className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-all flex items-center gap-3 text-gray-700 font-semibold">
-                                <User className="w-5 h-5 text-purple-500" />
+                            <button className="w-full px-4 py-3 text-left hover:bg-slate-800 transition-all flex items-center gap-3 text-white font-semibold">
+                                <User className="w-5 h-5 text-cyan-400" />
                                 Profile
                             </button>
-                            <button onClick={handleLogout} className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-all flex items-center gap-3 text-red-600 font-semibold">
+                            <button onClick={handleLogout} className="w-full px-4 py-3 text-left hover:bg-slate-800 transition-all flex items-center gap-3 text-red-400 font-semibold">
                                 <LogOut className="w-5 h-5" />
                                 Logout
                             </button>

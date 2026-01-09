@@ -14,7 +14,6 @@ export async function POST(request: Request) {
         });
 
         const text = await backendRes.text();
-        // Proxy status and headers (including Set-Cookie) back to the client
         return new Response(text, {
             status: backendRes.status,
             headers: backendRes.headers,
